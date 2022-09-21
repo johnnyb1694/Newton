@@ -1,24 +1,37 @@
+import csv
 
+from datetime import datetime
+from uri import NYT, Guardian
 
-class Article():
+def extract_nyt_data():
 
-    def __init__(self, article_id, source, publication_date, section, headline, abstract, body):
-        self.article_id = article_id
-        self.source = source
-        self.publication_date = publication_date
-        self.section = section
-        self.headline = headline
-        self.abstract = abstract
-        self.body = body
+    year = datetime.now().year
+    month = datetime.now().month
+
+    data = NYT(year, month).request().extract_data()
+
+    return data
+
+def extract_guardian_data():
+
+    today = datetime.today()
+    from_date = datetime(today.year, today.month, 1)
+
+    data = Guardian(from_date).request().extract_data()
+
+    return data
+
+def generate_metadata_table():
+    pass
     
-    def generate_metadata_table(self):
-        pass
-    
-    def generate_headline_table(self):
-        pass
+def generate_headline_table():
+    pass
 
-    def generate_abstract_table(self):
-        pass
+def generate_abstract_table():
+    pass
 
-    def generate_body_table(self):
-        pass
+def generate_body_table():
+    pass
+
+if __name__ == '__main__':
+    pass
