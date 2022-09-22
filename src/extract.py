@@ -31,7 +31,7 @@ def compile_csv(path: str, list_of_dicts: list):
         dict_writer.writeheader()
         dict_writer.writerows(list_of_dicts)
 
-def stage_data(path: str = './staging/_tmp_article_data.csv'):
+def stage_data(path: str = './staging/tmp_article_data.csv'):
     
     nyt_data = extract_nyt_data()
     guardian_data = extract_guardian_data()
