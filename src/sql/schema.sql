@@ -28,19 +28,19 @@ GO
 
 CREATE TABLE reference.Source (
     SourceID SERIAL,
-    Source TEXT
+    Source TEXT,
     UNIQUE(Source)
 );
 
 CREATE TABLE reference.Section (
-    SectionID SERIAL
-    Section TEXT
+    SectionID SERIAL,
+    Section TEXT,
     UNIQUE(Section)
 );
 
 CREATE TABLE reference.ContentType (
-    ContentTypeID SERIAL
-    ContentType TEXT
+    ContentTypeID SERIAL,
+    ContentType TEXT,
     UNIQUE(ContentType)
 );
 GO
@@ -53,7 +53,7 @@ CREATE TABLE main.Article (
     fkySectionID INTEGER,
     CONSTRAINT Article_ArticleID_pky PRIMARY KEY (ArticleID),
     CONSTRAINT Article_fkySourceID_fky FOREIGN KEY (fkySourceID) REFERENCES reference.Source (SourceID),
-    CONSTRAINT Article_fkySectionID_fky FOREIGN KEY (fkySourceID) REFERENCES reference.Section (SectionID)
+    CONSTRAINT Article_fkySectionID_fky FOREIGN KEY (fkySourceID) REFERENCES reference.Section (SectionID),
     UNIQUE(Headline, PublicationDate)
 );
 GO
@@ -65,7 +65,7 @@ CREATE TABLE main.Content (
     fkyArticleID INTEGER,
     CONSTRAINT Content_ContentID_pky PRIMARY KEY (ContentID),
     CONSTRAINT Content_fkyContentTypeID_fky FOREIGN KEY (fkyContentTypeID) REFERENCES reference.ContentType (ContentTypeID),
-    CONSTRAINT Content_fkyArticleID_fky FOREIGN KEY (fkyArticleID) REFERENCES main.Article (ArticleID)
+    CONSTRAINT Content_fkyArticleID_fky FOREIGN KEY (fkyArticleID) REFERENCES main.Article (ArticleID),
     UNIQUE(Content, fkyContentTypeID, fkyArticleID)
 );
 GO

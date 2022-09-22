@@ -1,4 +1,5 @@
 import csv
+import uuid
 
 from datetime import datetime
 from uri import NYT, Guardian
@@ -23,6 +24,10 @@ def extract_guardian_data():
     data = Guardian(from_date).request().extract_data()
     return data
 
+def append_staging_id(list_of_dicts: list):
+    list_of_dicts = [dict(item, uid=uuid.uuid4()) for item in list_of_dicts]
+    return list_of_dicts
+
 def compile_csv(path: str, list_of_dicts: list):
 
     keys = list_of_dicts[0].keys()
@@ -37,7 +42,8 @@ def stage_data(path: str = './staging/tmp_article_data.csv'):
     guardian_data = extract_guardian_data()
     combined_data = nyt_data + guardian_data
 
-    compile_csv(path, combined_data)
+    staging_data = append_staging_id(combined_data)
+    compile_csv(path, staging_data)
 
 if __name__ == '__main__':
     stage_data()

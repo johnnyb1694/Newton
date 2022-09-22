@@ -8,6 +8,7 @@ load_dotenv()
 # TODO: 
 # -> (Possibly) Abstract 'extract_data()' into base URI class
 # -> Figure out how to appropriately extract the textual body from the Guardian API response object
+# -> Abstract check on 'self.response' into 
 
 class URI():
     """
@@ -50,7 +51,6 @@ class NYT(URI):
         articles = self.response['response']['docs']
         data = [
                 {
-                'source_id': a['_id'],
                 'source': a['source'],
                 'publication_date': a['pub_date'],
                 'section': a['section_name'],
@@ -76,7 +76,6 @@ class Guardian(URI):
         articles = self.response['response']['results']
         data = [
                 {
-                'source_id': a['id'],
                 'source': 'The Guardian',
                 'publication_date': a['webPublicationDate'],
                 'section': a['sectionName'],
