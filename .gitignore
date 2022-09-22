@@ -1,4 +1,7 @@
+.DS_Store
+
 /venv
 /staging
 
 /src/.env
+/src/__pycache__
