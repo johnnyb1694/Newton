@@ -5,7 +5,15 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
+# TODO: 
+# -> (Possibly) Abstract 'extract_data()' into base URI class
+# -> Figure out how to appropriately extract the textual body from the Guardian API response object
+
 class URI():
+
+    """
+    Creates a 'URI' (i.e. resource) whose response attribute can be updated by calling the 'request()' method.
+    """
 
     def __init__(self, root, path, params):
         self.root = root
@@ -17,11 +25,13 @@ class URI():
     
     def set_uri(self, uri):
         self.uri = uri
+        return self
     
     def set_params(self, params):
         if not isinstance(params, dict):
             raise TypeError('Please specify URI parameters as a dictionary object.')
         self.params = params
+        return self
 
     def request(self):
         try:
@@ -36,7 +46,7 @@ class URI():
     
     def pprint_response(self):
         if self.response is None:
-            raise Exception('Please invoke the `request()` method before trying to pretty-print the response')
+            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
         print(json.dumps(self.response, indent=4, sort_keys=True, ensure_ascii=False))
         
 class NYT(URI):
@@ -47,6 +57,8 @@ class NYT(URI):
         URI.__init__(self, root='https://api.nytimes.com/svc/archive/v1/', path=path, params=params)
 
     def extract_data(self):
+        if self.response is None:
+            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
         articles = self.response['response']['docs']
         data = [
                 {
@@ -67,11 +79,27 @@ class Guardian(URI):
 
     def __init__(self, from_date):
         path = ''
-        params = {'show-blocks': 'body', 'from-date': from_date, 'api-key': os.environ.get('GUARDIAN_API_KEY')}
+        params = {'show-blocks': 'body', 'from-date': from_date, 'page-size': 50, 'api-key': os.environ.get('GUARDIAN_API_KEY')}
         URI.__init__(self, root='https://content.guardianapis.com/search', path=path, params=params)
-    
+
     def extract_data(self):
-        pass
+        if self.response is None:
+            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
+        articles = self.response['response']['results']
+        data = [
+                {
+                'id': a['id'],
+                'source': 'Guardian',
+                'publication_date': a['webPublicationDate'],
+                'section': a['sectionName'],
+                'headline': a['webTitle'],
+                'abstract': None,
+                'body': None
+                } 
+                for a 
+                in articles
+                ]
+        return data
 
 if __name__ == '__main__':
     pass
