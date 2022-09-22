@@ -10,11 +10,9 @@ load_dotenv()
 # -> Figure out how to appropriately extract the textual body from the Guardian API response object
 
 class URI():
-
     """
     Creates a 'URI' (i.e. resource) whose response attribute can be updated by calling the 'request()' method.
     """
-
     def __init__(self, root: str, path: str, params: dict):
         self.root = root
         self.path = path
@@ -52,7 +50,7 @@ class NYT(URI):
         articles = self.response['response']['docs']
         data = [
                 {
-                'id': a['_id'],
+                'source_id': a['_id'],
                 'source': a['source'],
                 'publication_date': a['pub_date'],
                 'section': a['section_name'],
@@ -78,8 +76,8 @@ class Guardian(URI):
         articles = self.response['response']['results']
         data = [
                 {
-                'id': a['id'],
-                'source': 'Guardian',
+                'source_id': a['id'],
+                'source': 'The Guardian',
                 'publication_date': a['webPublicationDate'],
                 'section': a['sectionName'],
                 'headline': a['webTitle'],
@@ -92,4 +90,5 @@ class Guardian(URI):
         return data
 
 if __name__ == '__main__':
-    pass
+    
+    print(Guardian(from_date='2022-09-01').request().extract_data())
