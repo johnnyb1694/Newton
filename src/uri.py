@@ -15,23 +15,13 @@ class URI():
     Creates a 'URI' (i.e. resource) whose response attribute can be updated by calling the 'request()' method.
     """
 
-    def __init__(self, root, path, params):
+    def __init__(self, root: str, path: str, params: dict):
         self.root = root
         self.path = path
         self.uri = root + path
         self.params = params
         self.response = None
         self.response_format = 'json'
-    
-    def set_uri(self, uri):
-        self.uri = uri
-        return self
-    
-    def set_params(self, params):
-        if not isinstance(params, dict):
-            raise TypeError('Please specify URI parameters as a dictionary object.')
-        self.params = params
-        return self
 
     def request(self):
         try:
@@ -51,7 +41,7 @@ class URI():
         
 class NYT(URI):
 
-    def __init__(self, year, month):
+    def __init__(self, year: int, month: int):
         path = '{year}/{month}.json'.format(year=year, month=month)
         params = {'api-key': os.environ.get('NYT_API_KEY')}
         URI.__init__(self, root='https://api.nytimes.com/svc/archive/v1/', path=path, params=params)

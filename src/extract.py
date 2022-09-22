@@ -3,8 +3,6 @@ import csv
 from datetime import datetime
 from uri import NYT, Guardian
 
-# Shall we have a decorator to stage the outputs of 'generate_*_table()' to a folder-based staging area of our local environment?
-
 def extract_nyt_data():
     """
     Extracts article data from the New York Times 'Archive Search' API for the latest available month.
