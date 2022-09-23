@@ -1,5 +1,5 @@
 import psycopg2
-import os
+import click
 
 from contextlib import contextmanager
 
@@ -32,14 +32,16 @@ class PostgreSQL():
             cursor.close()
             self._conn.close()
 
-def execute_script(path: str):
+def execute(script: str):
 
-    with open(path, 'r').read() as script, PostgreSQL().cursor() as cursor:
-        cursor.execute(script)
+    with PostgreSQL().cursor() as cursor, open(script, 'r') as script:
+        sql = script.read()
+        cursor.execute(sql)
 
-def init_schema():
-
-    execute_script('./src/sql/schema.sql')
+@click.command()
+def init_schema(script: str = './src/sql/schema.sql'):
+    execute(script)
+    click.echo('Database successfully initialised.')
 
 if __name__ == '__main__':
 

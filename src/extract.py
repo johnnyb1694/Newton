@@ -1,5 +1,6 @@
 import csv
 import uuid
+import db
 
 from datetime import datetime
 from uri import NYT, Guardian
@@ -50,5 +51,7 @@ def stage_data(path: str = './staging/tmp_article_data.csv'):
     staging_data = append_staging_id(combined_data)
     compile_csv(path, staging_data)
 
+
+
 if __name__ == '__main__':
-    stage_data()
+    db.init_schema()

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS staging.article;
-DROP TABLE IF EXISTS main.article;
 DROP TABLE IF EXISTS main.content;
+DROP TABLE IF EXISTS main.article;
 DROP TABLE IF EXISTS reference.source;
 DROP TABLE IF EXISTS reference.section;
 DROP TABLE IF EXISTS reference.content_type;
@@ -40,7 +40,7 @@ CREATE TABLE reference.content_type (
 
 CREATE TABLE main.article (
     article_id SERIAL PRIMARY KEY,
-    publication_datetime DATE,
+    publication_date DATE,
     source_id INTEGER,
     section_id INTEGER,
     CONSTRAINT article_source_id_fky FOREIGN KEY (source_id) REFERENCES reference.source (source_id),
