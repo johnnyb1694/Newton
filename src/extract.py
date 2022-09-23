@@ -4,6 +4,23 @@ import uuid
 from datetime import datetime
 from uri import NYT, Guardian
 
+# Utilities
+
+def append_staging_id(list_of_dicts: list):
+    
+    list_of_dicts = [dict(item, uid=uuid.uuid4()) for item in list_of_dicts]
+    return list_of_dicts
+
+def compile_csv(path: str, list_of_dicts: list):
+
+    keys = list_of_dicts[0].keys()
+    with open(path, 'w', newline='') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(list_of_dicts)
+
+# Function Definitions
+
 def extract_nyt_data():
     """
     Extracts article data from the New York Times 'Archive Search' API for the latest available month.
@@ -23,18 +40,6 @@ def extract_guardian_data():
 
     data = Guardian(from_date).request().extract_data()
     return data
-
-def append_staging_id(list_of_dicts: list):
-    list_of_dicts = [dict(item, uid=uuid.uuid4()) for item in list_of_dicts]
-    return list_of_dicts
-
-def compile_csv(path: str, list_of_dicts: list):
-
-    keys = list_of_dicts[0].keys()
-    with open(path, 'w', newline='') as output_file:
-        dict_writer = csv.DictWriter(output_file, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(list_of_dicts)
 
 def stage_data(path: str = './staging/tmp_article_data.csv'):
     

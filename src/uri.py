@@ -1,14 +1,25 @@
 import os
 import requests
 import json
+import functools
 
 from dotenv import load_dotenv
 load_dotenv()
 
-# TODO: 
-# -> (Possibly) Abstract 'extract_data()' into base URI class
-# -> Figure out how to appropriately extract the textual body from the Guardian API response object
-# -> Abstract check on 'self.response' into 
+# Utilities 
+
+def check_null_response(method):
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if self.response is None:
+            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
+        res = method(self, *args, **kwargs)
+        return res
+    
+    return(wrapper)
+
+# Class Definitions
 
 class URI():
     """
@@ -33,9 +44,8 @@ class URI():
             self.response = response
         return self
     
+    @check_null_response
     def pprint_response(self):
-        if self.response is None:
-            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
         print(json.dumps(self.response, indent=4, sort_keys=True, ensure_ascii=False))
         
 class NYT(URI):
@@ -45,9 +55,8 @@ class NYT(URI):
         params = {'api-key': os.environ.get('NYT_API_KEY')}
         URI.__init__(self, root='https://api.nytimes.com/svc/archive/v1/', path=path, params=params)
 
+    @check_null_response
     def extract_data(self):
-        if self.response is None:
-            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
         articles = self.response['response']['docs']
         data = [
                 {
@@ -70,9 +79,8 @@ class Guardian(URI):
         params = {'show-blocks': 'body', 'from-date': from_date, 'page-size': 50, 'api-key': os.environ.get('GUARDIAN_API_KEY')}
         URI.__init__(self, root='https://content.guardianapis.com/search', path=path, params=params)
 
+    @check_null_response
     def extract_data(self):
-        if self.response is None:
-            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
         articles = self.response['response']['results']
         data = [
                 {
