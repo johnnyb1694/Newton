@@ -1,0 +1,2 @@
+psql -U newton -d newton -c "TRUNCATE TABLE staging.article;"
+psql -U newton -d newton -c "\copy staging.article(source, publication_date, section, headline, abstract, body, uid) FROM './staging/tmp_article_data.csv' with (format csv,header true, delimiter ',');"
