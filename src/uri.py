@@ -1,101 +1,75 @@
 import os
 import requests
-import json
-import functools
 
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 load_dotenv()
 
-# Utilities 
+TODAY = datetime.today().date()
+LATEST_COMPLETE_DAY = TODAY - timedelta(days = 1)
 
-def check_null_response(method):
+def parse_datetime(datetime_string: str, pattern: str):
+    date = datetime.strptime(datetime_string, pattern).date()
+    return date
 
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        if self.response is None:
-            raise Exception('Please invoke the `request()` method first in order to generate a new response.')
-        res = method(self, *args, **kwargs)
-        return res
+def request(uri, params, response_format: str = 'json'):
+    try:
+        response = requests.get(uri, params)
+        if response_format == 'json':
+            response = response.json()
+    except:
+        raise Exception('Unable to obtain a response. Check specification of `uri` and `params` arguments.')
+    return response
+
+def get_latest_nyt():
     
-    return(wrapper)
+    uri = 'https://api.nytimes.com/svc/archive/v1/{year}/{month}.json'.format(year = LATEST_COMPLETE_DAY.year, month = LATEST_COMPLETE_DAY.month)
+    params = {'api-key': os.environ.get('NYT_API_KEY')}
+    """ {
+        'source': a['source'],
+        'publication_date': a['pub_date'],
+        'section': a['section_name'],
+        'headline': a['headline']['main'],
+        'abstract': a['abstract'],
+        'body': None
+    }  """
+    response = request(uri, params)
+    articles = response['response']['docs']
+    data = [ 
+            {
+            'source': a['source'],
+            'publication_date': a['pub_date'],
+            'section': a['section_name'],
+            'headline': a['headline']['main'],
+            'abstract': a['abstract'],
+            'body': None
+            } 
+            for a 
+            in articles
+            if parse_datetime(a['pub_date'], '%Y-%m-%dT%H:%M:%S+0000') == LATEST_COMPLETE_DAY
+            ]
+    return data
 
-# Class Definitions
+def get_latest_guardian():
 
-class URI():
-    """
-    Creates a 'URI' (i.e. resource) whose response attribute can be updated by calling the 'request()' method.
-    """
-    def __init__(self, root: str, path: str, params: dict):
-        self.root = root
-        self.path = path
-        self.uri = root + path
-        self.params = params
-        self.response = None
-        self.response_format = 'json'
-
-    def request(self):
-        try:
-            response = requests.get(self.uri, params=self.params)
-            if self.response_format == 'json':
-                response = response.json()
-        except:
-            raise Exception('Unable to obtain a response. Check specification of `uri` and `params` attributes.')
-        else:
-            self.response = response
-        return self
+    uri = 'https://content.guardianapis.com/search'
+    params = {'show-blocks': 'body', 'from-date': LATEST_COMPLETE_DAY, 'to-date': LATEST_COMPLETE_DAY, 'page-size': 50, 'api-key': os.environ.get('GUARDIAN_API_KEY')}
     
-    @check_null_response
-    def pprint_response(self):
-        print(json.dumps(self.response, indent=4, sort_keys=True, ensure_ascii=False))
-        
-class NYT(URI):
-
-    def __init__(self, year: int, month: int):
-        path = '{year}/{month}.json'.format(year=year, month=month)
-        params = {'api-key': os.environ.get('NYT_API_KEY')}
-        URI.__init__(self, root='https://api.nytimes.com/svc/archive/v1/', path=path, params=params)
-
-    @check_null_response
-    def extract_data(self):
-        articles = self.response['response']['docs']
-        data = [
-                {
-                'source': a['source'],
-                'publication_date': a['pub_date'],
-                'section': a['section_name'],
-                'headline': a['headline']['main'],
-                'abstract': a['abstract'],
-                'body': None
-                } 
-                for a 
-                in articles
-                ]
-        return data
-
-class Guardian(URI):
-
-    def __init__(self, from_date):
-        path = ''
-        params = {'show-blocks': 'body', 'from-date': from_date, 'page-size': 50, 'api-key': os.environ.get('GUARDIAN_API_KEY')}
-        URI.__init__(self, root='https://content.guardianapis.com/search', path=path, params=params)
-
-    @check_null_response
-    def extract_data(self):
-        articles = self.response['response']['results']
-        data = [
-                {
-                'source': 'The Guardian',
-                'publication_date': a['webPublicationDate'],
-                'section': a['sectionName'],
-                'headline': a['webTitle'],
-                'abstract': None,
-                'body': None
-                } 
-                for a 
-                in articles
-                ]
-        return data
+    response = request(uri, params)
+    articles = response['response']['results']
+    data = [
+            {
+            'source': 'The Guardian',
+            'publication_date': a['webPublicationDate'],
+            'section': a['sectionName'],
+            'headline': a['webTitle'],
+            'abstract': None,
+            'body': None
+            } 
+            for a 
+            in articles
+            ]
+    return data
 
 if __name__ == '__main__':
-    
-    print(Guardian(from_date='2022-09-01').request().extract_data())
+    pass
