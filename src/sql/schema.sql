@@ -38,6 +38,8 @@ CREATE TABLE reference.content_type (
     content_type TEXT
 );
 
+INSERT INTO reference.content_type (content_type) VALUES ('headline'), ('abstract'), ('body');
+
 CREATE TABLE main.article (
     article_id SERIAL PRIMARY KEY,
     publication_date DATE,

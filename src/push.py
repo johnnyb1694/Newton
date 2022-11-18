@@ -3,6 +3,7 @@ import uuid
 import os
 import subprocess
 import uri
+import db
 
 # Utilities
 
@@ -40,6 +41,9 @@ def stage_data():
         raise Exception('Error: data unsuccessfully staged. Please investigate the logs!')
     teardown_csv('./staging/tmp_article_data.csv')
     return stdout
+
+def push_data(uid: str):
+    pass
     
 if __name__ == '__main__':
     

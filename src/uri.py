@@ -25,14 +25,7 @@ def get_latest_nyt():
     
     uri = 'https://api.nytimes.com/svc/archive/v1/{year}/{month}.json'.format(year = LATEST_COMPLETE_DAY.year, month = LATEST_COMPLETE_DAY.month)
     params = {'api-key': os.environ.get('NYT_API_KEY')}
-    """ {
-        'source': a['source'],
-        'publication_date': a['pub_date'],
-        'section': a['section_name'],
-        'headline': a['headline']['main'],
-        'abstract': a['abstract'],
-        'body': None
-    }  """
+    
     response = request(uri, params)
     articles = response['response']['docs']
     data = [ 

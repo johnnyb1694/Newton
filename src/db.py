@@ -39,9 +39,14 @@ def execute(script: str):
         cursor.execute(sql)
 
 @click.command()
-def init_schema(script: str = './src/sql/schema.sql'):
-    execute(script)
-    click.echo('Database successfully initialised.')
+def init_schema(schema: str = './src/sql/schema.sql'):
+    execute(schema)
+    click.echo('Database schema successfully initialised.')
+
+@click.command()
+def init_procs(procs: str = './src/sql/prc_save.sql'):
+    execute(procs)
+    click.echo('Procedure(s) successfully initialised.')
 
 if __name__ == '__main__':
 
