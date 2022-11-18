@@ -48,6 +48,7 @@ BEGIN
         SELECT a.headline, ct.content_type_id, _article_id 
         FROM staging.article a 
         LEFT JOIN reference.content_type ct ON ct.content_type = 'headline'
+        WHERE a.uid = staging_uid
     );
 
     INSERT INTO main.content (content, content_type_id, article_id) 
@@ -55,6 +56,7 @@ BEGIN
         SELECT a.abstract, ct.content_type_id, _article_id 
         FROM staging.article a 
         LEFT JOIN reference.content_type ct ON ct.content_type = 'abstract'
+        WHERE a.uid = staging_uid
     );
 
     INSERT INTO main.content (content, content_type_id, article_id) 
@@ -62,6 +64,7 @@ BEGIN
         SELECT a.body, ct.content_type_id, _article_id 
         FROM staging.article a 
         LEFT JOIN reference.content_type ct ON ct.content_type = 'body'
+        WHERE a.uid = staging_uid
     );
 
 END;
