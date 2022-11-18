@@ -1,5 +1,7 @@
+DROP PROCEDURE main.save(text);
+
 CREATE PROCEDURE main.save(
-    uid TEXT
+    staging_uid TEXT
 )
 LANGUAGE plpgsql
 AS $$
@@ -21,7 +23,7 @@ BEGIN
         _publication_date,
         _section
     FROM staging.article a 
-    WHERE a.uid = uid;
+    WHERE a.uid = staging_uid;
 
     -- Source
     IF NOT EXISTS(SELECT 1 from reference.source where source = _source) THEN
