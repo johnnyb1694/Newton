@@ -1,3 +1,4 @@
+DROP PROCEDURE IF EXISTS main.save(text);
 DROP TABLE IF EXISTS staging.article;
 DROP TABLE IF EXISTS main.content;
 DROP TABLE IF EXISTS main.article;

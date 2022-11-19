@@ -34,7 +34,10 @@ def download_latest_articles():
     staging_data = append_id(combined_data)
     compile_csv('./staging/tmp_article_data.csv', staging_data)
 
-def stage_data():
+    uids = [item['uid'] for item in staging_data]
+    return uids
+
+def stage_articles():
 
     stdout = subprocess.call(['sh', './src/sql/stage.sh'])
     if stdout:
@@ -42,10 +45,38 @@ def stage_data():
     teardown_csv('./staging/tmp_article_data.csv')
     return stdout
 
-def push_data(uid: str):
-    pass
+def push_article(uid: str):
     
+    try:
+        with db.PostgreSQL().cursor() as cursor, open('./src/sql/save.sql', 'r') as script:
+            sql = script.read()
+            sql.format(uid = uid)
+            cursor.execute(sql)
+    except: 
+        """
+        Could potentially be more specific here with different errors for different parts of the process, i.e.
+        except InitError:  # raised from __init__
+            ...
+        except AcquireResourceError:  # raised from __enter__
+            ...
+        except ValueError:  # raised from BLOCK
+            ...
+        except ReleaseResourceError:  # raised from __exit__
+            ...
+        """
+        return (uid, -1)
+    
+    return (uid, 0)
+    
+def push_articles():
+    
+    uids = download_latest_articles()
+    stage_articles()
+    push_status = [push_article(article_id) for article_id in uids]
+    
+    return push_status
+
 if __name__ == '__main__':
     
     download_latest_articles()
-    stage_data()
+    stage_articles()
