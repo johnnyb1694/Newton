@@ -14,6 +14,14 @@ DECLARE
     _article_id INT;
 BEGIN
 
+    IF EXISTS(
+        SELECT 1 
+        FROM main.content c 
+        WHERE c.content = (SELECT a.headline FROM staging.article a WHERE a.uid = staging_uid)
+    ) THEN
+        RETURN
+    END IF;
+
     SELECT 
         a.source,
         a.publication_date,
@@ -26,13 +34,13 @@ BEGIN
     WHERE a.uid = staging_uid;
 
     -- Source
-    IF NOT EXISTS(SELECT 1 from reference.source where source = _source) THEN
+    IF NOT EXISTS(SELECT 1 FROM reference.source WHERE source = _source) THEN
         INSERT INTO reference.source (source) 
         VALUES (_source) RETURNING source_id INTO _source_id;
     END IF;
 
     -- Section
-    IF NOT EXISTS(SELECT 1 from reference.section where section = _section) THEN
+    IF NOT EXISTS(SELECT 1 FROM reference.section WHERE section = _section) THEN
         INSERT INTO reference.section (section) 
         VALUES (_section) RETURNING section_id INTO _section_id;
     END IF;
