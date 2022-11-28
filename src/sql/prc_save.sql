@@ -1,4 +1,4 @@
-DROP PROCEDURE main.save(text);
+DROP PROCEDURE IF EXISTS main.save(text);
 
 CREATE PROCEDURE main.save(
     staging_uid TEXT
@@ -41,31 +41,36 @@ BEGIN
     INSERT INTO main.article (publication_date, section_id, source_id) 
     VALUES (_publication_date, _section_id, _source_id) RETURNING article_id INTO _article_id;
 
-    -- Content
-    
-    INSERT INTO main.content (content, content_type_id, article_id) 
-    (
-        SELECT a.headline, ct.content_type_id, _article_id 
-        FROM staging.article a 
-        LEFT JOIN reference.content_type ct ON ct.content_type = 'headline'
-        WHERE a.uid = staging_uid
-    );
+    -- Content (Headline, Abstract and Body)
+    IF (SELECT a.headline FROM staging.article a WHERE a.uid = staging_uid) IS NOT NULL THEN
+        INSERT INTO main.content (content, content_type_id, article_id) 
+        (
+            SELECT a.headline, ct.content_type_id, _article_id 
+            FROM staging.article a 
+            LEFT JOIN reference.content_type ct ON ct.content_type = 'headline'
+            WHERE a.uid = staging_uid
+        );
+    END IF;
 
-    INSERT INTO main.content (content, content_type_id, article_id) 
-    (
-        SELECT a.abstract, ct.content_type_id, _article_id 
-        FROM staging.article a 
-        LEFT JOIN reference.content_type ct ON ct.content_type = 'abstract'
-        WHERE a.uid = staging_uid
-    );
+    IF (SELECT a.abstract FROM staging.article a WHERE a.uid = staging_uid) IS NOT NULL THEN
+        INSERT INTO main.content (content, content_type_id, article_id) 
+        (
+            SELECT a.abstract, ct.content_type_id, _article_id 
+            FROM staging.article a 
+            LEFT JOIN reference.content_type ct ON ct.content_type = 'abstract'
+            WHERE a.uid = staging_uid
+        );
+    END IF;
 
-    INSERT INTO main.content (content, content_type_id, article_id) 
-    (
-        SELECT a.body, ct.content_type_id, _article_id 
-        FROM staging.article a 
-        LEFT JOIN reference.content_type ct ON ct.content_type = 'body'
-        WHERE a.uid = staging_uid
-    );
+    IF (SELECT a.body FROM staging.article a WHERE a.uid = staging_uid) IS NOT NULL THEN
+        INSERT INTO main.content (content, content_type_id, article_id) 
+        (
+            SELECT a.body, ct.content_type_id, _article_id 
+            FROM staging.article a 
+            LEFT JOIN reference.content_type ct ON ct.content_type = 'body'
+            WHERE a.uid = staging_uid
+        );
+    END IF;
 
 END;
 $$;
