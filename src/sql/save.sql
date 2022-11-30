@@ -1,1 +1,1 @@
-CALL main.save ('{uid}');
+CALL main.save (%s);
